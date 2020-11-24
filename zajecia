@@ -1,0 +1,61 @@
+--1
+USE Northwind
+SELECT Customers.CompanyName, Customers.Phone,Shippers.CompanyName  FROM Customers INNER JOIN Orders ON ShipName=CompanyName AND
+    YEAR(ShippedDate)=1997 INNER JOIN Shippers ON ShipVia=ShipperID where  Shippers.CompanyName like '%United Package%'
+--2
+USe Northwind
+SELECT  Customers.CompanyName, Customers.Phone,Categories.CategoryName  FROM Customers INNER JOIN Orders ON
+Orders.CustomerID=Customers.CustomerID INNER JOIN [Order Details] ON Orders.OrderID=[Order Details].OrderID
+INNER JOIN Products On [Order Details].ProductID=Products.ProductID INNER JOIN Categories ON
+Products.CategoryID=Categories.CategoryID WHERE CategoryName LIKE 'Confections'
+--3
+USe Northwind
+SELECT  Customers.CompanyName, Customers.Phone,Categories.CategoryName  FROM Customers INNER JOIN Orders ON
+Orders.CustomerID=Customers.CustomerID INNER JOIN [Order Details] ON Orders.OrderID=[Order Details].OrderID
+INNER JOIN Products On [Order Details].ProductID=Products.ProductID INNER JOIN Categories ON
+Products.CategoryID=Categories.CategoryID WHERE CategoryName NOT LIKE 'Confections'
+--4
+USE Northwind
+SELECT Products.ProductName, MAX([Order Details].Quantity) FROM [Order Details] INNER JOIN Products
+ON Products.ProductID=[Order Details].ProductID GROUP BY Products.ProductName
+--5
+USE Northwind
+SELECT Products.ProductName FROM Products WHERE  Products.UnitPrice < (SELECT AVG(UnitPrice) FROM Products)
+--6
+USE Northwind
+SELECT t1.ProductName FROM Products AS t1 WHERE t1.UnitPrice < (SELECT AVG(t2.Unitprice) FROM Products AS t2 WHERE t1.CategoryID=t2.CategoryID)
+--te dwa źle
+--7
+USE Northwind
+SELECT Products.ProductName,Products.UnitPrice,AVG([Order Details].UnitPrice),(Products.UnitPrice-AVG([Order Details].UnitPrice)) as r
+FROM Products INNER JOIN [Order Details] ON Products.ProductID = [Order Details].ProductID GROUP BY Products.ProductName, Products.UnitPrice
+--8
+USE Northwind
+SELECT Categories.CategoryName ,Products.ProductName,Products.UnitPrice,AVG([Order Details].UnitPrice),(Products.UnitPrice-AVG([Order Details].UnitPrice)) as r
+FROM Products INNER JOIN [Order Details] ON Products.ProductID = [Order Details].ProductID INNER JOIN Categories ON Products.CategoryID = Categories.CategoryID
+GROUP BY Products.ProductName, Products.UnitPrice, Categories.CategoryName
+--7 to chyba dobrze
+SELECT P.ProductName, P.UnitPrice,(SELECT AVG(UnitPrice)FROM Products) AS 'avg',P.UnitPrice - (SELECT AVG(UnitPrice)
+FROM Products) AS 'roz' FROM Products AS P
+--8 to chyba dobrze
+SELECT (SELECT C.CategoryName FROM Categories AS C WHERE C.CategoryID = P.CategoryID) AS 'CategoryName',P.ProductName, P.UnitPrice,
+ (SELECT AVG(P2.UnitPrice) FROM Products AS P2 WHERE P2.CategoryID = P.CategoryID) AS 'avg', P.UnitPrice - (SELECT AVG(P2.UnitPrice)
+ FROM Products AS P2 WHERE P2.CategoryID = P.CategoryID) AS 'roz' FROM Products AS P
+
+SELECT ProductID, UnitPrice FROM [Order Details] GROUP BY ProductID, UnitPrice
+--9
+SELECT Freight+(SELECT (SUM(Quantity*UnitPrice)) FROM [Order Details] JOIN Orders ON Orders.OrderID=[Order Details].OrderID WHERE Orders.OrderID=10250) FROM Orders WHERE OrderID=10250
+--10
+SELECT Orders.OrderID,(SUM(Quantity*UnitPrice))+Orders.Freight FROM [Order Details] JOIN Orders ON Orders.OrderID=[Order Details].OrderID GROUP BY Orders.OrderID, Orders.Freight
+--11
+SELECT C.Address FROM Customers AS C WHERE C.CustomerID NOT IN ( SELECT O.CustomerID FROM Orders AS O WHERE YEAR(O.OrderDate) = 1997)
+--12
+SELECT P.ProductName FROM Products as P INNER JOIN [Order Details] [O D] on P.ProductID = [O D].ProductID
+INNER JOIN [Order Details] [O D2] on P.ProductID = [O D2].ProductID GROUP BY P.ProductName HAVING count(*)>1
+
+
+SELECT OrderID,Quantity,UnitPrice FROM [Order Details] WHERE OrderID=10250
+SELECT Freight FROM Orders WHERE OrderID=10250
+
+
+--24.11.2020
